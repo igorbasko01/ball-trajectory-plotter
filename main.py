@@ -17,7 +17,7 @@ def initial_velocity_from_angle(speed_kmh: float, i_angle: float, i_rpm: float) 
 
 
 def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: float = 0.0,
-                    angle_deg: float = 0.0):
+                    angle_deg: float = 0.0, rpm: float = 0.0):
     g = 9.81
     court_length = 23.77
     net_height = 0.914
@@ -28,8 +28,8 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: 
     t = np.linspace(0, 5, 1000)
 
     # Calculate positions
-    x = v_x * t
-    y = h_0 + v_y * t - 0.5 * g * t ** 2
+    x = i_v_x * t
+    y = h_0 + i_v_y * t - 0.5 * g * t ** 2
 
     ground_index = np.argmax(y < 0)
 
@@ -59,9 +59,13 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: 
     plt.show()
 
 
-if __name__ == '__main__':
+def main():
     angle = 6
     velocity_kmh = 100
     rpm = 0
     v_x, v_y, angular_velocity = initial_velocity_from_angle(velocity_kmh, angle, rpm)
-    plot_trajectory(v_x, v_y, 1.0, angular_velocity, angle_deg=angle)
+    plot_trajectory(v_x, v_y, 1.0, angular_velocity, angle_deg=angle, rpm=rpm)
+
+
+if __name__ == '__main__':
+    main()
