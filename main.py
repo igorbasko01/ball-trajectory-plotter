@@ -1,29 +1,32 @@
 import math
-from typing import Tuple
 
 import numpy as np
 from matplotlib import pyplot as plt
 
 
-def initial_velocity_from_angle(speed_kmh: float, i_angle: float, i_rpm: float) -> Tuple[float, float, float]:
+def initial_velocity_from_angle(speed_kmh: float, i_angle: float):
     initial_velocity_ms = speed_kmh / 3.6
     angle_radians = math.radians(i_angle)
     i_v_x = initial_velocity_ms * math.cos(angle_radians)
     i_v_y = initial_velocity_ms * math.sin(angle_radians)
 
-    # Calculate the angular velocity
-    a_velocity = i_rpm * 2 * math.pi / 60
-    return i_v_x, i_v_y, a_velocity
+    return i_v_x, i_v_y
 
 
-def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: float = 0.0,
-                    angle_deg: float = 0.0, rpm: float = 0.0):
+def calculate_angle(i_v_x, i_v_y):
+    angle_radians = math.atan2(i_v_y, i_v_x)  # Calculate the angle in radians
+    angle_degrees = math.degrees(angle_radians)  # Convert the angle to degrees
+    return angle_degrees
+
+
+def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0):
     g = 9.81
     court_length = 23.77
     net_height = 0.914
     net_distance = court_length / 2
 
     initial_speed_kmh = np.sqrt(i_v_x ** 2 + i_v_y ** 2) * 3.6
+    angle_deg = calculate_angle(i_v_x, i_v_y)
 
     t = np.linspace(0, 5, 1000)
 
@@ -60,11 +63,11 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: 
 
 
 def main():
-    angle = 45
+    angle = 0
     velocity_kmh = 50
-    rpm = 0
-    v_x, v_y, angular_velocity = initial_velocity_from_angle(velocity_kmh, angle, rpm)
-    plot_trajectory(v_x, v_y, 1.0, angular_velocity, angle_deg=angle, rpm=rpm)
+    v_x, v_y = initial_velocity_from_angle(velocity_kmh, angle)
+    plot_trajectory(v_x, v_y, 1.0)
+    # plot_trajectory(13.89, 13.89, 1.0)
 
 
 if __name__ == '__main__':
