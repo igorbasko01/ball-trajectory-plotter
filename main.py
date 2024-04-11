@@ -51,7 +51,7 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: 
     # Plot out
     plt.plot([court_length, court_length], [0, 0.1], 'k-', linewidth=2)
 
-    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s, {rpm:.2f} RPM',
+    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s',
              transform=plt.gca().transAxes, fontsize=12,
              verticalalignment='top')
     plt.text(0.05, 0.90, f'Initial Angle: {angle_deg:.2f}', transform=plt.gca().transAxes, fontsize=12,
@@ -60,8 +60,8 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, i_a_velocity: 
 
 
 def main():
-    angle = 6
-    velocity_kmh = 100
+    angle = 45
+    velocity_kmh = 50
     rpm = 0
     v_x, v_y, angular_velocity = initial_velocity_from_angle(velocity_kmh, angle, rpm)
     plot_trajectory(v_x, v_y, 1.0, angular_velocity, angle_deg=angle, rpm=rpm)
