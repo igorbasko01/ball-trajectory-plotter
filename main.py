@@ -63,12 +63,13 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
     y = y[:ground_index]
 
     plt.figure(figsize=(8, 6))
-    plt.plot(x, y)
+    plt.plot(x, y, label=f'rpm {rpm}')
     plt.xlabel('Distance (m)')
     plt.ylabel('Height (m)')
     plt.title('Tennis Ball Trajectory')
     plt.ylim(0, 10)
     plt.xlim(0, 30)
+    plt.legend()
     plt.grid(True)
 
     # Plot net
@@ -77,7 +78,7 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
     # Plot out
     plt.plot([court_length, court_length], [0, 0.1], 'k-', linewidth=2)
 
-    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s, {rpm:.2f} RPM',
+    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s',
              transform=plt.gca().transAxes, fontsize=12,
              verticalalignment='top')
     plt.text(0.05, 0.90, f'Initial Angle: {angle_deg:.2f}', transform=plt.gca().transAxes, fontsize=12,
