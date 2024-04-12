@@ -31,6 +31,7 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
 
     initial_speed_kmh = np.sqrt(i_v_x ** 2 + i_v_y ** 2) * 3.6
     angle_deg = calculate_angle(i_v_x, i_v_y)
+    rpm = rads_s * 60 / (2 * np.pi)
 
     t = np.linspace(0, 5, 1000)
 
@@ -47,7 +48,7 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
 
     # Calculate Magnus force per unit mass at each timestamp
     # Magnus force F_m = rho * A * C_l * |v| * omega
-    v_mag = np.sqrt(v_x**2 + v_y**2)
+    v_mag = np.sqrt(v_x ** 2 + v_y ** 2)
     F_m_y = rho * A * C_l * v_mag * omega_z
 
     # New acceleration in y due to Magnus effect
@@ -76,7 +77,7 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
     # Plot out
     plt.plot([court_length, court_length], [0, 0.1], 'k-', linewidth=2)
 
-    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s',
+    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s, {rpm:.2f} RPM',
              transform=plt.gca().transAxes, fontsize=12,
              verticalalignment='top')
     plt.text(0.05, 0.90, f'Initial Angle: {angle_deg:.2f}', transform=plt.gca().transAxes, fontsize=12,
@@ -89,6 +90,7 @@ def create_sensor_to_ms_func(sensor_value_max: int, kmh_value_max: float):
 
     def sensor_to_ms(sensor_value: int) -> float:
         return sensor_value / sensor_value_max * ms_value_max
+
     return sensor_to_ms
 
 
@@ -109,7 +111,7 @@ def main():
     velocity_kmh = 30
     v_x, v_y = initial_velocity_from_angle(velocity_kmh, angle)
     v_x, v_y = initial_velocity_from_sensors(4534, 4678)
-    rads_s = rpm_to_rads_s(0)
+    rads_s = rpm_to_rads_s(100)
     plot_trajectory(v_x, v_y, 1.0, rads_s)
     # plot_trajectory(16.3, 16.3, 1.0)
 
