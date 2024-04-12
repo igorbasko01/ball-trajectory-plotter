@@ -62,12 +62,29 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0):
     plt.show()
 
 
+def create_sensor_to_ms_func(sensor_value_max: int, kmh_value_max: float):
+    ms_value_max = kmh_value_max / 3.6
+
+    def sensor_to_ms(sensor_value: int) -> float:
+        return sensor_value / sensor_value_max * ms_value_max
+    return sensor_to_ms
+
+
+y_sensor_to_ms = create_sensor_to_ms_func(10000, 30)
+x_sensor_to_ms = create_sensor_to_ms_func(10000, 144)
+
+
+def initial_velocity_from_sensors(x_sensor: int, y_sensor: int):
+    return x_sensor_to_ms(x_sensor), y_sensor_to_ms(y_sensor)
+
+
 def main():
-    angle = 0
-    velocity_kmh = 50
+    angle = 45
+    velocity_kmh = 30
     v_x, v_y = initial_velocity_from_angle(velocity_kmh, angle)
+    v_x, v_y = initial_velocity_from_sensors(9000, 10000)
     plot_trajectory(v_x, v_y, 1.0)
-    # plot_trajectory(13.89, 13.89, 1.0)
+    # plot_trajectory(16.3, 16.3, 1.0)
 
 
 if __name__ == '__main__':
