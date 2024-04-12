@@ -19,11 +19,52 @@ def calculate_angle(i_v_x, i_v_y):
     return angle_degrees
 
 
-def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float = 0.0):
-    g = 9.81
+def plot_trajectory(plots: list):
     court_length = 23.77
     net_height = 0.914
     net_distance = court_length / 2
+
+    plt.figure(figsize=(8, 6))
+
+    for x, y, label in plots:
+        plt.plot(x, y, label=label)
+
+    plt.xlabel('Distance (m)')
+    plt.ylabel('Height (m)')
+    plt.title('Tennis Ball Trajectory')
+    plt.ylim(0, 10)
+    plt.xlim(0, 30)
+    plt.legend()
+    plt.grid(True)
+
+    # Plot net
+    plt.plot([net_distance, net_distance], [0, net_height], 'k-', linewidth=2)
+
+    # Plot out
+    plt.plot([court_length, court_length], [0, 0.1], 'k-', linewidth=2)
+
+    plt.show()
+
+
+def create_sensor_to_ms_func(sensor_value_max: int, kmh_value_max: float):
+    ms_value_max = kmh_value_max / 3.6
+
+    def sensor_to_ms(sensor_value: int) -> float:
+        return sensor_value / sensor_value_max * ms_value_max
+
+    return sensor_to_ms
+
+
+def initial_velocity_from_sensors(x_sensor: int, y_sensor: int):
+    return x_sensor_to_ms(x_sensor), y_sensor_to_ms(y_sensor)
+
+
+def rpm_to_rads_s(rpm: float):
+    return rpm * 2 * np.pi / 60
+
+
+def calculate_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float = 0.0):
+    g = 9.81
     rho = 1.225  # air density, kg/m^3
     radius = 0.0335  # tennis ball radius, m
     A = np.pi * radius ** 2  # cross-sectional area of the ball, m^2
@@ -62,59 +103,44 @@ def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float 
     x = x[:ground_index]
     y = y[:ground_index]
 
-    plt.figure(figsize=(8, 6))
-    plt.plot(x, y, label=f'rpm {rpm}')
-    plt.xlabel('Distance (m)')
-    plt.ylabel('Height (m)')
-    plt.title('Tennis Ball Trajectory')
-    plt.ylim(0, 10)
-    plt.xlim(0, 30)
-    plt.legend()
-    plt.grid(True)
+    label = f'{initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s, {angle_deg:.2f}°, {rpm:.2f} rpm'
 
-    # Plot net
-    plt.plot([net_distance, net_distance], [0, net_height], 'k-', linewidth=2)
-
-    # Plot out
-    plt.plot([court_length, court_length], [0, 0.1], 'k-', linewidth=2)
-
-    plt.text(0.05, 0.95, f'Initial Speed: {initial_speed_kmh:.2f} km/h, ({i_v_x:.2f}, {i_v_y:.2f}) m/s',
-             transform=plt.gca().transAxes, fontsize=12,
-             verticalalignment='top')
-    plt.text(0.05, 0.90, f'Initial Angle: {angle_deg:.2f}', transform=plt.gca().transAxes, fontsize=12,
-             verticalalignment='top')
-    plt.show()
-
-
-def create_sensor_to_ms_func(sensor_value_max: int, kmh_value_max: float):
-    ms_value_max = kmh_value_max / 3.6
-
-    def sensor_to_ms(sensor_value: int) -> float:
-        return sensor_value / sensor_value_max * ms_value_max
-
-    return sensor_to_ms
+    return x, y, label
 
 
 y_sensor_to_ms = create_sensor_to_ms_func(10000, 30)
 x_sensor_to_ms = create_sensor_to_ms_func(10000, 144)
 
 
-def initial_velocity_from_sensors(x_sensor: int, y_sensor: int):
-    return x_sensor_to_ms(x_sensor), y_sensor_to_ms(y_sensor)
-
-
-def rpm_to_rads_s(rpm: float):
-    return rpm * 2 * np.pi / 60
-
-
 def main():
-    angle = 45
-    velocity_kmh = 30
-    v_x, v_y = initial_velocity_from_angle(velocity_kmh, angle)
-    v_x, v_y = initial_velocity_from_sensors(4534, 4678)
-    rads_s = rpm_to_rads_s(100)
-    plot_trajectory(v_x, v_y, 1.0, rads_s)
-    # plot_trajectory(16.3, 16.3, 1.0)
+    """
+    This application calculates and plots a trajectory of a tennis ball.
+    It is possible to create multiple trajectories with different initial conditions.
+    All the trajectories can be plotted on the same graph.
+
+    The initial velocities could be calculated from sensors readings. The x-axis is the z-axis in Unity.
+    To calculate the initial velocity from sensors, the following function is used:
+    initial_velocity_from_sensors. This method returns the initial velocity in x and y directions in m/s.
+
+    It is also possible to calculate the trajectory with a given initial velocity in km/h and angle.
+    The function initial_velocity_from_angle is used for this purpose.
+    It returns the initial velocity in x and y directions in m/s.
+
+    h_0 is the initial height of the ball in meters.
+
+    rads_s is the angular velocity of the ball in radians per second.
+    The rpm_to_rads_s function is used to convert rpm to radians per second.
+    """
+    plots = [
+        calculate_trajectory(
+            *initial_velocity_from_sensors(4534, 4678),
+            h_0=1.0, rads_s=rpm_to_rads_s(1085)),
+        calculate_trajectory(
+            *initial_velocity_from_sensors(4534, 4678),
+            h_0=1.0, rads_s=rpm_to_rads_s(0))
+    ]
+
+    plot_trajectory(plots)
 
 
 if __name__ == '__main__':
