@@ -19,20 +19,42 @@ def calculate_angle(i_v_x, i_v_y):
     return angle_degrees
 
 
-def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0):
+def plot_trajectory(i_v_x: float, i_v_y: float, h_0: float = 0.0, rads_s: float = 0.0):
     g = 9.81
     court_length = 23.77
     net_height = 0.914
     net_distance = court_length / 2
+    rho = 1.225  # air density, kg/m^3
+    radius = 0.0335  # tennis ball radius, m
+    A = np.pi * radius ** 2  # cross-sectional area of the ball, m^2
+    C_l = 0.2  # lift coefficient
 
     initial_speed_kmh = np.sqrt(i_v_x ** 2 + i_v_y ** 2) * 3.6
     angle_deg = calculate_angle(i_v_x, i_v_y)
 
     t = np.linspace(0, 5, 1000)
 
+    # Initial conditions
+    omega_z = rads_s  # angular velocity, rad/s
+
     # Calculate positions
     x = i_v_x * t
-    y = h_0 + i_v_y * t - 0.5 * g * t ** 2
+
+    # Incorporate Magnus effect
+    # Define velocity at each time step
+    v_x = i_v_x * np.ones_like(t)
+    v_y = i_v_y - g * t
+
+    # Calculate Magnus force per unit mass at each timestamp
+    # Magnus force F_m = rho * A * C_l * |v| * omega
+    v_mag = np.sqrt(v_x**2 + v_y**2)
+    F_m_y = rho * A * C_l * v_mag * omega_z
+
+    # New acceleration in y due to Magnus effect
+    a_y = g + F_m_y
+
+    # Integrate to find new y position
+    y = h_0 + i_v_y * t - 0.5 * a_y * t ** 2
 
     ground_index = np.argmax(y < 0)
 
@@ -78,12 +100,17 @@ def initial_velocity_from_sensors(x_sensor: int, y_sensor: int):
     return x_sensor_to_ms(x_sensor), y_sensor_to_ms(y_sensor)
 
 
+def rpm_to_rads_s(rpm: float):
+    return rpm * 2 * np.pi / 60
+
+
 def main():
     angle = 45
     velocity_kmh = 30
     v_x, v_y = initial_velocity_from_angle(velocity_kmh, angle)
-    v_x, v_y = initial_velocity_from_sensors(9000, 10000)
-    plot_trajectory(v_x, v_y, 1.0)
+    v_x, v_y = initial_velocity_from_sensors(4534, 4678)
+    rads_s = rpm_to_rads_s(0)
+    plot_trajectory(v_x, v_y, 1.0, rads_s)
     # plot_trajectory(16.3, 16.3, 1.0)
 
 
